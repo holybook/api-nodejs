@@ -12,6 +12,7 @@ app.get('/author', function(req, res) {
         index: 'en',
         type: 'author',
         filterPath: 'hits.hits._source',
+        size: 9999,
         body: {
             "query": {
                 "match_all": {}
