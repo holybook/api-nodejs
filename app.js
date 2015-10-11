@@ -11,6 +11,7 @@ app.get('/author', function(req, res) {
     client.search({
         index: 'en',
         type: 'author',
+        filterPath: 'hits.hits._source',
         body: {
             "query": {
                 "match_all": {}
