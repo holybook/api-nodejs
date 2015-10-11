@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "elasticsearch": "^8.2.0",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "lodash": "^3.10.1"
   },
   "devDependencies": {},
   "scripts": {
@@ -16,7 +17,7 @@
     "url": "https://github.com/holybook/api.git"
   },
   "author": "Hannes Widmoser",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/holybook/api/issues"
   },
