@@ -3,7 +3,7 @@
   <xsl:output indent="no" omit-xml-declaration="yes" method="text" encoding="utf-8"/>
     <xsl:template match="/book">
 
-        <xsl:text>{ "index" : { "_index" : "en", "_type" : "book", "_id" : "</xsl:text>
+        <xsl:text>{ "index" : { "_index" : "meta", "_type" : "book", "_id" : "</xsl:text>
         <xsl:value-of select="/book/@id"/>
         <xsl:text>" } }&#10;</xsl:text>
 
@@ -41,7 +41,7 @@
 
         <xsl:for-each select="content/section/p">
 
-            <xsl:text>{ "index" : { "_index" : "en" , "_type" : "paragraph", "_id" : "</xsl:text>
+            <xsl:text>{ "index" : { "_index" : "text-en" , "_type" : "paragraph", "_id" : "</xsl:text>
             <xsl:value-of select="/book/@id"/>#<xsl:value-of select="position() - 1" />
             <xsl:text>" } }&#10;</xsl:text>
 

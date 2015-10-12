@@ -15,33 +15,37 @@ if [[ -z $core ]]; then
   core="en"
 fi
 
-echo "Deleting index... "
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XDELETE "$host:9200/en"`
+echo "Deleting indices... "
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XDELETE "$host:9200/meta"`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XDELETE "$host:9200/text-en"`
 
-echo "Creating index... "
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XPUT "$host:9200/en" --data-binary @index.json`
+echo "Creating indices... "
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XPUT "$host:9200/meta" --data-binary @schema/meta.json`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XPUT "$host:9200/text-en" --data-binary @schema/text-en.json`
 
 echo "Indexing religions..."
-for file in ../rawdata/religions/en/*.json
+for file in ../../rawdata/religions/*.json
 do
     filename="${file##*/}"
     filename=${filename%.*}
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/en/religion/$filename" --data-binary @$file`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/meta/religion/$filename" --data-binary @$file`
 done
 
 echo "Indexing authors..."
-for file in ../rawdata/authors/en/*.json
+for file in ../../rawdata/authors/*.json
 do
     filename="${file##*/}"
     filename=${filename%.*}
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/en/author/$filename" --data-binary @$file`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/meta/author/$filename" --data-binary @$file`
 done
 
 echo "Indexing books..."
-for file in ../rawdata/reference-library/*.xml
+for file in ../../rawdata/reference-library/*.xml
 do
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/_book" --data-binary @$file`
+    xsltproc -o "tmp.json" xml2json.xsl $file
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/_bulk" --data-binary @tmp.json`
 done
+rm tmp.json

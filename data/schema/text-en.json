@@ -1,0 +1,102 @@
+{
+    "settings" :
+    {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1,
+        "auto_expand_replicas" : "0-all",
+        "analysis" :
+        {
+            "analyzer" :
+            {
+                "en" :
+                {
+                    "type" : "custom",
+                    "tokenizer": "standard",
+                    "filter": ["standard", "en_stemmer", "lowercase", "stop", "porter_stem", "asciifolding", "remove_accents"]
+                }
+            },
+            "filter" :
+            {
+                "en_stemmer" : {
+                    "type" : "stemmer",
+                    "name" : "possessive_english"
+                },
+                "remove_accents" : {
+                    "type" : "pattern_replace",
+                    "pattern" : "[`'ʿ]",
+                    "replace" : ""
+                }
+            }
+        }
+    },
+    "mappings" :
+    {
+        "paragraph" : {
+            "_all" : {
+                "enabled" : false
+            },
+            "properties" : {
+                "text" : {
+                    "type" : "string",
+                    "analyzer" : "en"
+                },
+                "author" : {
+                    "type" : "object",
+                    "properties" : {
+                        "id" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                        },
+                        "name" : {
+                            "type" : "string",
+                            "analyzer" : "en"
+                        }
+                    }
+                },
+                "book" : {
+                    "type" : "object",
+                    "properties" : {
+                        "id" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                        },
+                        "title" : {
+                            "type" : "string",
+                            "analyzer" : "en"
+                        },
+                        "section" : {
+                            "type" : "object",
+                            "properties" : {
+                                "index" : {
+                                    "type" : "integer",
+                                    "index" : "not_analyzed"
+                                },
+                                "title" : {
+                                    "type" : "string",
+                                    "analyzer" : "en"
+                                }
+                            }
+                        }
+                    }
+                },
+                "religion" : {
+                    "type" : "object",
+                    "properties" : {
+                        "id" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                        },
+                        "name" : {
+                            "type" : "string",
+                            "analyzer" : "en"
+                        }
+                    }
+                },
+                "index" : {
+                    "type" : "integer",
+                    "index" : "not_analyzed"
+                }
+            }
+        }
+    }
+}

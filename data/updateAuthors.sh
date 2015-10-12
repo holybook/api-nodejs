@@ -21,5 +21,5 @@ do
     filename="${file##*/}"
     filename=${filename%.*}
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/en/author/$filename" --data-binary @$file`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/meta/author/$filename" --data-binary @$file`
 done

@@ -17,9 +17,12 @@ fi
 
 for file in "$@"
 do
-    echo -ne "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/_book" --data-binary @$file`
+    printf "Uploading $file... "
+    xsltproc -o "tmp.json" xml2json.xsl $file
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/_bulk" --data-binary @tmp.json`
 done
+rm tmp.json
+
 
 rm tmp
 
