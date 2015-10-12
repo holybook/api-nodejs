@@ -20,6 +20,8 @@ app.get('/author', function(req, res) {
         }
     }).then(function (o) {
         res.send(o.hits.hits.map(a => a._source));
+    }, function(err) {
+        res.status(500).send('ES - ' + err);
     });
 });
 
