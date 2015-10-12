@@ -9,7 +9,7 @@ var client = new elasticsearch.Client({
 
 app.get('/author', (req, res) => {
     client.search({
-        index: 'en',
+        index: 'meta',
         type: 'author',
         filterPath: 'hits.hits._source',
         size: 9999,
