@@ -7,7 +7,7 @@ var client = new elasticsearch.Client({
     log: 'trace'
 });
 
-app.get('/author', function(req, res) {
+app.get('/author', (req, res) => {
     client.search({
         index: 'en',
         type: 'author',
@@ -18,14 +18,14 @@ app.get('/author', function(req, res) {
                 "match_all": {}
             }
         }
-    }).then(function (o) {
+    }).then((o) => {
         res.send(o.hits.hits.map(a => a._source));
     }, function(err) {
         res.status(500).send('ES - ' + err);
     });
 });
 
-var server = app.listen(3000, function() {
+var server = app.listen(3000, () => {
     var host = server.address().address;
     var port = server.address().port;
 
