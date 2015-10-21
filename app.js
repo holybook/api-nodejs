@@ -1,5 +1,6 @@
 var express = require('express');
 var elasticsearch = require('elasticsearch');
+var _ = require('lodash');
 
 var app = express();
 var client = new elasticsearch.Client({
@@ -7,22 +8,84 @@ var client = new elasticsearch.Client({
     log: 'trace'
 });
 
-app.get('/author', (req, res) => {
-    client.search({
-        index: 'meta',
-        type: 'author',
-        filterPath: 'hits.hits._source',
-        size: 9999,
-        body: {
-            "query": {
-                "match_all": {}
-            }
-        }
-    }).then((o) => {
-        res.send(o.hits.hits.map(a => a._source));
-    }, function(err) {
+var onESError = (res) => (err) => {
+    if (err.status == 404) {
+        res.status(404).send();
+    } else {
         res.status(500).send('ES - ' + err);
+    }
+};
+
+var extract = a => {
+    var result = a._source;
+    result.id = a._id;
+    return result;
+};
+
+var resource = (name, filters, opts) => {
+
+    if (_.isUndefined(filters)) {
+        filters = [];
+    }
+
+    app.get('/' + name, (req, res) => {
+
+        var filterQuery = _.mapKeys(_.pick(req.query, _.keys(filters)), (value, key) => filters[key]);
+        var termFilter = {};
+
+        if (!_.isEmpty(filterQuery)) {
+            console.log(filterQuery);
+            termFilter = {
+                term: filterQuery
+            };
+        }
+
+        client.search(_.merge({
+            index: 'meta',
+            type: name,
+            filterPath: ['hits.hits._source', 'hits.hits._id'],
+            size: 3,
+            body: {
+                query: {
+                    filtered: {
+                        query: {
+                            match_all: {}
+                        },
+                        filter: termFilter
+                    }
+                }
+            }
+        }, opts)).then((o) => {
+            res.send(o.hits.hits.map(extract));
+        }, onESError(res));
     });
+
+    app.get('/' + name + '/:id', (req, res) => {
+        client.get({
+            index: 'meta',
+            type: name,
+            id: req.params.id
+        }).then((o) => {
+            res.send(extract(o));
+        }, onESError(res))
+    });
+};
+
+resource('author', ['religion']);
+resource('religion');
+resource('book', {
+    religion: 'religion.id',
+    author: 'author.id'
+}, {
+    _source_exclude: 'sections'
+});
+
+app.use(function (err, req, res, next) {
+    if (res.headersSent) {
+        return next(err);
+    }
+    res.status(500);
+    res.render('error', {error: err});
 });
 
 var server = app.listen(3000, () => {
