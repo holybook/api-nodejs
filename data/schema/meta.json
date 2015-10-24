@@ -13,6 +13,12 @@
                     "type" : "custom",
                     "tokenizer": "standard",
                     "filter": ["standard", "en_stemmer", "lowercase", "stop", "porter_stem", "asciifolding", "remove_accents"]
+                },
+                "remove_accents" :
+                {
+                    "type" : "custom",
+                    "tokenizer": "keyword",
+                    "filter": ["asciifolding", "remove_accents"]
                 }
             },
             "filter" :
@@ -34,7 +40,13 @@
         "religion" : {
             "properties" : {
                 "name" : {
-                    "type" : "string"
+                    "type" : "string",
+                    "fields": {
+                        "raw": {
+                            "type":  "string",
+                            "index": "not_analyzed"
+                        }
+                    }
                 },
                 "founder" : {
                     "type" : "string",
@@ -54,11 +66,23 @@
             "properties" : {
                 "name" : {
                     "type" : "string",
-                    "analyzer" : "en"
+                    "analyzer" : "en",
+                    "fields": {
+                        "raw": {
+                            "type":  "string",
+                            "analyzer": "remove_accents"
+                        }
+                    }
                 },
                 "title" : {
                     "type" : "string",
-                    "analyzer" : "en"
+                    "analyzer" : "en",
+                    "fields": {
+                        "raw": {
+                            "type":  "string",
+                            "analyzer": "remove_accents"
+                        }
+                    }
                 },
                 "religion" : {
                     "type" : "string",
@@ -81,7 +105,13 @@
             "properties" : {
                 "title" : {
                     "type" : "string",
-                    "analyzer" : "en"
+                    "analyzer" : "en",
+                    "fields": {
+                        "raw": {
+                            "type":  "string",
+                            "analyzer": "remove_accents"
+                        }
+                    }
                 },
                 "pages" : {
                     "type" : "integer",

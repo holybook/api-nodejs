@@ -44,7 +44,8 @@ var resource = (name, filters, opts) => {
             index: 'meta',
             type: name,
             filterPath: ['hits.hits._source', 'hits.hits._id'],
-            size: 3,
+            size: req.query.size || 25,
+            from: req.query.from || 0,
             body: {
                 query: {
                     filtered: {
@@ -71,21 +72,27 @@ var resource = (name, filters, opts) => {
     });
 };
 
-resource('author', ['religion']);
-resource('religion');
+resource('author', ['religion'], {
+    sort: [ 'title.raw', 'name.raw' ]
+});
+resource('religion', [], {
+    sort: [ 'name.raw' ]
+});
 resource('book', {
     religion: 'religion.id',
     author: 'author.id'
 }, {
-    _source_exclude: 'sections'
+    _source_exclude: 'sections',
+    sort: [ 'title.raw' ]
 });
 
 app.use(function (err, req, res, next) {
     if (res.headersSent) {
         return next(err);
     }
+    console.log(err.stack);
     res.status(500);
-    res.render('error', {error: err});
+    res.send({error: err});
 });
 
 var server = app.listen(3000, () => {
