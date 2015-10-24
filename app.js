@@ -86,6 +86,61 @@ resource('book', {
     sort: [ 'title.raw' ]
 });
 
+var page = (paragraphs, characters, sectionSize) => {
+    var sections = [];
+    var lastSection;
+
+    var addParagraph = (p) => {
+        if (!lastSection || lastSection.index != p.book.section.index) {
+            // new section:
+            lastSection = p.book.section;
+            lastSection.text = [ p.text ];
+            sections.push(lastSection);
+        } else {
+            lastSection.text.push(p.text);
+        }
+
+        characters -= p.text.length;
+    };
+
+    for (var i in paragraphs) {
+        var p = paragraphs[i];
+        if (characters > p.text.length) {
+            addParagraph(p);
+        } else {
+            addParagraph(p);
+            break;
+        }
+    }
+
+    return sections;
+};
+
+app.get('/book/:id/text', (req, res) => {
+    client.search({
+        index: 'text-en',
+        type: 'paragraph',
+        filterPath: ['hits.hits._source', 'hits.hits._id'],
+        _source_exclude: 'author,religion,book.id,book.title',
+        size: req.query.size || 25,
+        from: req.query.from || 0,
+        body: {
+            query: {
+                filtered: {
+                    query: {
+                        match_all: {}
+                    },
+                    filter: {
+
+                    }
+                }
+            }
+        }
+    }).then((o) => {
+        res.send(page(o.hits.hits.map(extract), 1000, 50));
+    }, onESError(res))
+});
+
 app.use(function (err, req, res, next) {
     if (res.headersSent) {
         return next(err);
