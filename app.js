@@ -86,7 +86,7 @@ resource('book', {
     sort: ['title.raw']
 });
 
-var page = (res, scrollId, paragraphs, characters, sectionSize) => {
+var page = (paragraphs) => {
     var sections = [];
     var lastSection;
 
@@ -99,34 +99,11 @@ var page = (res, scrollId, paragraphs, characters, sectionSize) => {
         } else {
             lastSection.text.push(p.text);
         }
-
-        characters -= p.text.length;
     };
 
-    var addParagraphs = (paragraphs) => {
-        for (var i in paragraphs) {
-            var p = paragraphs[i];
-            if (characters > p.text.length) {
-                addParagraph(p);
-            } else {
-                addParagraph(p);
-                break;
-            }
-        }
+    _.forEach(paragraphs, addParagraph);
 
-        if (characters > 0) {
-            client.scroll({
-                scrollId: scrollId,
-                scroll: '5s'
-            }, function(err, o) {
-                addParagraphs(o.hits.hits.map(extract));
-            });
-        } else {
-            res.send(sections);
-        }
-    };
-
-    addParagraphs(paragraphs);
+    return sections;
 };
 
 app.get('/book/:id/text', (req, res) => {
@@ -137,7 +114,6 @@ app.get('/book/:id/text', (req, res) => {
         _source_exclude: 'author,religion,book.id,book.title',
         size: req.query.size || 25,
         from: req.query.from || 0,
-        scroll: '5s',
         body: {
             query: {
                 filtered: {
@@ -153,7 +129,7 @@ app.get('/book/:id/text', (req, res) => {
             }
         }
     }).then((o) => {
-        page(res, o._scroll_id, o.hits.hits.map(extract), 20000, 50);
+        res.send(page(o.hits.hits.map(extract)));
     }, onESError(res));
 });
 
