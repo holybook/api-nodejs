@@ -133,6 +133,27 @@ app.get('/book/:id/text', (req, res) => {
     }, onESError(res));
 });
 
+app.get('/search', (req, res) => {
+    client.search({
+        index: 'text-en',
+        type: 'paragraph',
+        //filterPath: ['_scroll_id', 'hits.hits._source', 'hits.hits._id'],
+        //_source_exclude: 'author,religion,book.id,book.title',
+        size: req.query.size || 25,
+        from: req.query.from || 0,
+        body: {
+            query: {
+                query_string: {
+                    default_field: 'text',
+                    query: req.query.q
+                }
+            }
+        }
+    }).then((o) => {
+        res.send(o.hits.hits.map(extract).map(link));
+    }, onESError(res));
+});
+
 app.use(function (err, req, res, next) {
     if (res.headersSent) {
         return next(err);
