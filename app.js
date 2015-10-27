@@ -1,5 +1,6 @@
 var express = require('express');
 var elasticsearch = require('elasticsearch');
+var cors = require('cors')
 var _ = require('lodash');
 
 var app = express();
@@ -71,6 +72,10 @@ var resource = (name, filters, opts) => {
         }, onESError(res))
     });
 };
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 resource('author', ['religion'], {
     sort: ['title.raw', 'name.raw']
