@@ -17,9 +17,15 @@ var onESError = (res) => (err) => {
     }
 };
 
-var extract = a => {
+var extract = (a) => {
     var result = a._source;
     result.id = a._id;
+    return result;
+};
+
+var extractSearchResult = (a) => {
+    var result = extract(a);
+    result.body = a.highlight.text[0];
     return result;
 };
 
@@ -152,10 +158,24 @@ app.get('/search', (req, res) => {
                     default_field: 'text',
                     query: req.query.q
                 }
+            },
+            highlight : {
+                pre_tags : ['<strong>'],
+                post_tags : ['</strong>'],
+                fields : {
+                    text : {
+                        fragment_size : 1000,
+                        number_of_fragments : 1
+                    }
+                }
             }
         }
     }).then((o) => {
-        res.send(o.hits.hits.map(extract));
+        res.send({
+            hits: o.hits.total,
+            took: o.took,
+            results: o.hits.hits.map(extractSearchResult)
+        });
     }, onESError(res));
 });
 
