@@ -150,7 +150,7 @@ app.get('/search', (req, res) => {
             }
         }
     }).then((o) => {
-        res.send(o.hits.hits.map(extract).map(link));
+        res.send(o.hits.hits.map(extract));
     }, onESError(res));
 });
 
@@ -163,7 +163,7 @@ app.use(function (err, req, res, next) {
     res.send({error: err});
 });
 
-var server = app.listen(3000, () => {
+var server = app.listen(3030, () => {
     var host = server.address().address;
     var port = server.address().port;
 
