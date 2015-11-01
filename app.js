@@ -3,6 +3,10 @@ var elasticsearch = require('elasticsearch');
 var cors = require('cors')
 var _ = require('lodash');
 
+
+var HEADER_PAGINATION_TOTAL = 'pagination-total';
+
+
 var app = express();
 var client = new elasticsearch.Client({
     host: 'localhost:9200',
@@ -29,14 +33,6 @@ var extractSearchResult = (a) => {
     return result;
 };
 
-var paginated = (o, ext) => {
-    return {
-        hits: o.hits.total,
-        took: o.took,
-        results: o.hits.hits.map(ext || extract)
-    };
-};
-
 var resource = (name, filters, opts) => {
 
     if (_.isUndefined(filters)) {
@@ -58,7 +54,7 @@ var resource = (name, filters, opts) => {
         client.search(_.merge({
             index: 'meta',
             type: name,
-            filterPath: ['hits.hits._source', 'hits.hits._id', 'hits.total', 'took'],
+            filterPath: ['hits.hits._source', 'hits.hits._id', 'hits.total'],
             size: req.query.size || 25,
             from: req.query.from || 0,
             body: {
@@ -73,8 +69,12 @@ var resource = (name, filters, opts) => {
             }
         }, opts)).then((o) => {
             if (o.hits) {
-                res.send(paginated(o));
+                res.append(HEADER_PAGINATION_TOTAL, o.hits.total);
+                res.append('Access-Control-Expose-Headers', HEADER_PAGINATION_TOTAL);
+                res.send(o.hits.hits.map(extract));
             } else {
+                res.append(HEADER_PAGINATION_TOTAL, 0);
+                res.append('Access-Control-Expose-Headers', HEADER_PAGINATION_TOTAL);
                 res.send([]);
             }
         }, onESError(res));
@@ -171,19 +171,23 @@ app.get('/search', (req, res) => {
                     query: req.query.q
                 }
             },
-            highlight: {
-                pre_tags: ['<strong>'],
-                post_tags: ['</strong>'],
-                fields: {
-                    text: {
-                        fragment_size: 1000,
-                        number_of_fragments: 1
+            highlight : {
+                pre_tags : ['<strong>'],
+                post_tags : ['</strong>'],
+                fields : {
+                    text : {
+                        fragment_size : 1000,
+                        number_of_fragments : 1
                     }
                 }
             }
         }
     }).then((o) => {
-        res.send(paginated(o, extractSearchResult));
+        res.send({
+            hits: o.hits.total,
+            took: o.took,
+            results: o.hits.hits.map(extractSearchResult)
+        });
     }, onESError(res));
 });
 
