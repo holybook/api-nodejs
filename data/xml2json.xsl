@@ -56,6 +56,8 @@
             <xsl:value-of select="../@title"/>
             <xsl:text>", "index" : </xsl:text>
             <xsl:value-of select="count(../preceding-sibling::section)" />
+            <xsl:text>, "start" : </xsl:text>
+            <xsl:value-of select="count(preceding::p)"/>
             <xsl:text> } }, "religion" : { "id" : "</xsl:text>
             <xsl:value-of select="/book/meta/religion/@id"/>
             <xsl:text>", "name" : "</xsl:text>

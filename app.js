@@ -118,6 +118,7 @@ var page = (paragraphs) => {
             // new section:
             lastSection = p.book.section;
             lastSection.text = [p.text];
+            lastSection.offset = p.index - lastSection.start;
             sections.push(lastSection);
         } else {
             lastSection.text.push(p.text);
