@@ -29,6 +29,14 @@ var extractSearchResult = (a) => {
     return result;
 };
 
+var paginated = (o, ext) => {
+    return {
+        hits: o.hits.total,
+        took: o.took,
+        results: o.hits.hits.map(ext || extract)
+    };
+};
+
 var resource = (name, filters, opts) => {
 
     if (_.isUndefined(filters)) {
@@ -50,7 +58,7 @@ var resource = (name, filters, opts) => {
         client.search(_.merge({
             index: 'meta',
             type: name,
-            filterPath: ['hits.hits._source', 'hits.hits._id'],
+            filterPath: ['hits.hits._source', 'hits.hits._id', 'hits.total', 'took'],
             size: req.query.size || 25,
             from: req.query.from || 0,
             body: {
@@ -64,7 +72,11 @@ var resource = (name, filters, opts) => {
                 }
             }
         }, opts)).then((o) => {
-            res.send(o.hits.hits.map(extract));
+            if (o.hits) {
+                res.send(paginated(o));
+            } else {
+                res.send([]);
+            }
         }, onESError(res));
     });
 
@@ -159,23 +171,19 @@ app.get('/search', (req, res) => {
                     query: req.query.q
                 }
             },
-            highlight : {
-                pre_tags : ['<strong>'],
-                post_tags : ['</strong>'],
-                fields : {
-                    text : {
-                        fragment_size : 1000,
-                        number_of_fragments : 1
+            highlight: {
+                pre_tags: ['<strong>'],
+                post_tags: ['</strong>'],
+                fields: {
+                    text: {
+                        fragment_size: 1000,
+                        number_of_fragments: 1
                     }
                 }
             }
         }
     }).then((o) => {
-        res.send({
-            hits: o.hits.total,
-            took: o.took,
-            results: o.hits.hits.map(extractSearchResult)
-        });
+        res.send(paginated(o, extractSearchResult));
     }, onESError(res));
 });
 
