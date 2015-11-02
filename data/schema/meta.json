@@ -59,6 +59,10 @@
                 "thumbnail" : {
                     "type" : "string",
                     "index" : "no"
+                },
+                "wikipedia_id" : {
+                    "type" : "long",
+                    "index" : "no"
                 }
             }
         },
@@ -94,6 +98,10 @@
                 },
                 "thumbnail" : {
                     "type" : "string",
+                    "index" : "no"
+                },
+                "wikipedia_id" : {
+                    "type" : "long",
                     "index" : "no"
                 }
             }
