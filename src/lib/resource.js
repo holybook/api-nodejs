@@ -9,7 +9,7 @@ module.exports = (name, filters, opts) => {
         filters = [];
     }
 
-    app.get('/' + name, (req, res) => {
+    app.get('/api/' + name, (req, res) => {
 
         var filterQuery = _.mapKeys(_.pick(req.query, _.keys(filters)), (value, key) => filters[key]);
         var termFilter = {};
@@ -47,7 +47,7 @@ module.exports = (name, filters, opts) => {
         }, es.onError(res));
     });
 
-    app.get('/' + name + '/:id', (req, res) => {
+    app.get('/api/' + name + '/:id', (req, res) => {
         es.client.get({
             index: 'meta',
             type: name,

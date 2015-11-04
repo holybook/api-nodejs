@@ -1,7 +1,7 @@
 var app = require('../express');
 var es = require('../elasticsearch');
 
-app.get('/search', (req, res) => {
+app.get('/api/search', (req, res) => {
     es.client.search({
         index: 'text-en',
         type: 'paragraph',

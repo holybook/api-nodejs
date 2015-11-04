@@ -1,3 +1,4 @@
+var express = require('express');
 var app = require('./src/express');
 var cors = require('cors');
 var _ = require('lodash');
@@ -5,6 +6,8 @@ var _ = require('lodash');
 app.use(cors({
     origin: 'http://localhost:3000'
 }));
+
+app.use('/', express.static('client'));
 
 require('./src/api/meta');
 require('./src/api/book');

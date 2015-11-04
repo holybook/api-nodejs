@@ -1,6 +1,7 @@
 var app = require('../express');
 var es = require('../elasticsearch');
 var resource = require('../lib/resource');
+var _ = require('lodash');
 
 resource('book', {
     religion: 'religion.id',
@@ -31,7 +32,7 @@ var page = (paragraphs) => {
     return sections;
 };
 
-app.get('/book/:id/text', (req, res) => {
+app.get('/api/book/:id/text', (req, res) => {
     es.client.search({
         index: 'text-en',
         type: 'paragraph',
