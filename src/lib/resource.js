@@ -15,7 +15,6 @@ module.exports = (name, filters, opts) => {
         var termFilter = {};
 
         if (!_.isEmpty(filterQuery)) {
-            console.log(filterQuery);
             termFilter = {
                 term: filterQuery
             };

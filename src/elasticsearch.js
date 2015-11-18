@@ -2,7 +2,7 @@ var elasticsearch = require('elasticsearch');
 
 exports.client = new elasticsearch.Client({
     host: 'localhost:9200',
-    log: 'trace'
+    log: 'warning'
 });
 
 exports.onError = (res) => (err) => {
