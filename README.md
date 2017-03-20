@@ -4,9 +4,23 @@ An api for searching in books, querying and browsing meta information about book
 
 ## Getting Started
 
+### Elastic search:
+
+Install elasticsearch: https://www.elastic.co/downloads/elasticsearch
+
+`bin/elasticsearch`
+
+### Setup data:
+
+Cd into the data folder
+
+`esindex.sh`
+
+### Run server:
+
 `npm install`
 
-`node app.js`
+`npm start`
 
 ## Technical Details
 
