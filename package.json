@@ -9,10 +9,19 @@
     "express": "^4.13.3",
     "lodash": "^3.10.1"
   },
-  "devDependencies": {},
-  "files" : [ "src" ],
+  "devDependencies": {
+    "@types/node": "^10.0.0",
+    "nodemon": "^1.17.3",
+    "ts-node": "^6.0.2",
+    "typescript": "^2.8.3"
+  },
+  "files": [
+    "src"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
   },
   "repository": {
     "type": "git",
