@@ -9,8 +9,15 @@
     "express": "*",
     "lodash": "*"
   },
-  "devDependencies": {},
-  "files" : [ "src" ],
+  "devDependencies": {
+    "@types/node": "^10.0.0",
+    "nodemon": "^1.17.3",
+    "ts-node": "^6.0.2",
+    "typescript": "^2.8.3"
+  },
+  "files": [
+    "src"
+  ],
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
