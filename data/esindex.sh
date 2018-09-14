@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 host=$ES_HOST
 core=$ES_CORE
 
@@ -16,12 +16,12 @@ if [[ -z $core ]]; then
 fi
 
 echo "Deleting indices... "
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XDELETE "$host:9200/meta"`
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XDELETE "$host:9200/text-en"`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -H 'Content-Type: application/json' -XDELETE "$host:9200/meta"`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -H 'Content-Type: application/json' -XDELETE "$host:9200/text-en"`
 
 echo "Creating indices... "
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XPUT "$host:9200/meta" --data-binary @schema/meta.json`
-echo `curl -u "$user:$password" -s -w "%{http_code}\n" -XPUT "$host:9200/text-en" --data-binary @schema/text-en.json`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -H 'Content-Type: application/json' -XPUT "$host:9200/meta" --data-binary @schema/meta.json`
+echo `curl -u "$user:$password" -s -w "%{http_code}\n" -H 'Content-Type: application/json' -XPUT "$host:9200/text-en" --data-binary @schema/text-en.json`
 
 echo "Indexing religions..."
 for file in ../../rawdata/religions/*.json
@@ -29,7 +29,7 @@ do
     filename="${file##*/}"
     filename=${filename%.*}
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/meta/religion/$filename" --data-binary @$file`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -H 'Content-Type: application/json' -XPOST "$host:9200/meta/religion/$filename" --data-binary @$file`
 done
 
 echo "Indexing authors..."
@@ -38,7 +38,7 @@ do
     filename="${file##*/}"
     filename=${filename%.*}
     printf "Uploading $file... "
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/meta/author/$filename" --data-binary @$file`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -H 'Content-Type: application/json' -XPOST "$host:9200/meta/author/$filename" --data-binary @$file`
 done
 
 echo "Indexing books..."
@@ -46,6 +46,6 @@ for file in ../../rawdata/reference-library/*.xml
 do
     printf "Uploading $file... "
     xsltproc -o "tmp.json" xml2json.xsl $file
-    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -XPOST "$host:9200/_bulk" --data-binary @tmp.json`
+    echo `curl -u "$user:$password" -s -o /dev/null -w "%{http_code}\n" -H 'Content-Type: application/json' -XPOST "$host:9200/_bulk" --data-binary @tmp.json`
 done
 rm tmp.json
